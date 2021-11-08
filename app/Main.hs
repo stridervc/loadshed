@@ -1,6 +1,13 @@
 module Main where
 
-import Lib
+import Loadshedding
 
 main :: IO ()
-main = someFunc
+main = do
+  client <- newLoadsheddingClient
+  status <- getLoadsheddingStatus client
+
+  case status of
+    Left err  -> print err
+    Right 0   -> putStrLn "Not load shedding at the moment"
+    Right l   -> putStrLn $ "Load shedding level " <> show l

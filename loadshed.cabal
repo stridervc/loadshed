@@ -25,13 +25,19 @@ source-repository head
 
 library
   exposed-modules:
-      Lib
+      Loadshedding
   other-modules:
       Paths_loadshed
   hs-source-dirs:
       src
   build-depends:
-      base >=4.7 && <5
+      aeson
+    , base >=4.7 && <5
+    , http-client
+    , http-client-tls
+    , servant
+    , servant-client
+    , text
   default-language: Haskell2010
 
 executable loadshed
@@ -44,6 +50,7 @@ executable loadshed
   build-depends:
       base >=4.7 && <5
     , loadshed
+    , text
   default-language: Haskell2010
 
 test-suite loadshed-test

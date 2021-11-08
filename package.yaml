@@ -24,8 +24,13 @@ dependencies:
 
 library:
   source-dirs: src
-#  dependencies:
-#  - text
+  dependencies:
+  - text
+  - servant
+  - servant-client
+  - aeson
+  - http-client
+  - http-client-tls
 
 executables:
   loadshed:
@@ -37,7 +42,7 @@ executables:
     - -with-rtsopts=-N
     dependencies:
     - loadshed
-#   - text
+    - text
 
 tests:
   loadshed-test:
