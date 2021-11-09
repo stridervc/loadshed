@@ -43,6 +43,7 @@ executables:
     dependencies:
     - loadshed
     - text
+    - cmdargs
 
 tests:
   loadshed-test:
