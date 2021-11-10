@@ -44,7 +44,13 @@ doProvinces = mapM_ print' $ zip [1..] knownProvinces
   where print' (i,n) = putStrLn $ show i <> " " <> n
 
 doMunicipalities :: Int -> IO ()
-doMunicipalities p = print p
+doMunicipalities p = do
+  client <- newLoadsheddingClient
+  res <- getMunicipalities client p
+  case res of
+    Left err  -> print err
+    Right ms  -> mapM_ print' ms
+  where print' m  = putStrLn $ (show $ municipalityId m) <> " " <> (municipalityName m)
 
 main :: IO ()
 main = do
