@@ -10,6 +10,7 @@ import qualified Data.Text as T
 data Loadshed = Stage
               | Provinces
               | Municipalities { province :: Int }
+              | Suburbs { municipality :: Int }
               deriving (Eq, Show, Data, Typeable)
 
 stage = Stage &= help "Show current load shedding stage" &= auto
@@ -17,6 +18,9 @@ provinces = Provinces &= help "List province names and IDs"
 municipalities = Municipalities
   { province = 3 &= help "Province ID"
   } &= help "List municipalities in province"
+suburbs = Suburbs
+  { municipality = 166
+  } &= help "List suburbs in municipality"
 
 knownProvinces =
   [ "Eastern Cape"
@@ -50,12 +54,22 @@ doMunicipalities p = do
   case res of
     Left err  -> print err
     Right ms  -> mapM_ print' ms
-  where print' m  = putStrLn $ (show $ municipalityId m) <> " " <> (municipalityName m)
+  where print' m  = putStrLn $ show (municipalityId m) <> " " <> municipalityName m
+
+doSuburbs :: Int -> IO ()
+doSuburbs m = do
+  client <- newLoadsheddingClient
+  res <- getSuburbs client m
+  case res of
+    Left err  -> print err
+    Right ss  -> mapM_ print' $ filter (\s -> suburbTot s > 0) ss
+  where print' s  = putStrLn $ show (suburbId s) <> " " <> suburbName s
 
 main :: IO ()
 main = do
-  mode <- cmdArgsRun $ cmdArgsMode $ modes [stage, provinces, municipalities] &= summary "loadshed 0.0.0"
+  mode <- cmdArgsRun $ cmdArgsMode $ modes [stage, provinces, municipalities, suburbs] &= summary "loadshed 0.0.0"
   case mode of
     Stage             -> doStage
     Provinces         -> doProvinces
     Municipalities p  -> doMunicipalities p
+    Suburbs m         -> doSuburbs m
