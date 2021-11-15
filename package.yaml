@@ -31,6 +31,7 @@ library:
   - aeson
   - http-client
   - http-client-tls
+  - bytestring
 
 executables:
   loadshed:

@@ -7,10 +7,12 @@ import Loadshedding
 import System.Console.CmdArgs
 import qualified Data.Text as T
 
+-- command line modes
 data Loadshed = Stage
               | Provinces
               | Municipalities { province :: Int }
               | Suburbs { municipality :: Int }
+              | Schedule { loadsheddingstage :: Int, province :: Int, suburb :: Int }
               deriving (Eq, Show, Data, Typeable)
 
 stage = Stage &= help "Show current load shedding stage" &= auto
@@ -21,6 +23,11 @@ municipalities = Municipalities
 suburbs = Suburbs
   { municipality = 166
   } &= help "List suburbs in municipality"
+schedule = Schedule
+  { loadsheddingstage = 2       &= help "Load shedding stage"
+  , province          = 3       &= help "Province ID"
+  , suburb            = 1021456 &= help "Suburb ID"
+  } &= help "Get loadshedding schedule"
 
 knownProvinces =
   [ "Eastern Cape"
@@ -65,11 +72,18 @@ doSuburbs m = do
     Right ss  -> mapM_ print' $ filter (\s -> suburbTot s > 0) ss
   where print' s  = putStrLn $ show (suburbId s) <> " " <> suburbName s
 
+doSchedule :: LoadsheddingStage -> ProvinceID -> SuburbID -> IO ()
+doSchedule stage pid sid = do
+  client <- newLoadsheddingClient
+  sched <- getSchedule client stage pid sid
+  print sched
+
 main :: IO ()
 main = do
-  mode <- cmdArgsRun $ cmdArgsMode $ modes [stage, provinces, municipalities, suburbs] &= summary "loadshed 0.0.0"
+  mode <- cmdArgsRun $ cmdArgsMode $ modes [stage, provinces, municipalities, suburbs, schedule] &= summary "loadshed 0.0.0"
   case mode of
-    Stage             -> doStage
-    Provinces         -> doProvinces
-    Municipalities p  -> doMunicipalities p
-    Suburbs m         -> doSuburbs m
+    Stage               -> doStage
+    Provinces           -> doProvinces
+    Municipalities p    -> doMunicipalities p
+    Suburbs m           -> doSuburbs m
+    Schedule stage p s  -> doSchedule stage p s

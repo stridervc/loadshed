@@ -26,7 +26,10 @@ source-repository head
 library
   exposed-modules:
       Loadshedding
-      Schedule
+      Loadshedding.Common
+      Loadshedding.Municipality
+      Loadshedding.Schedule
+      Loadshedding.Suburb
   other-modules:
       Paths_loadshed
   hs-source-dirs:
@@ -34,6 +37,7 @@ library
   build-depends:
       aeson
     , base >=4.7 && <5
+    , bytestring
     , http-client
     , http-client-tls
     , servant
