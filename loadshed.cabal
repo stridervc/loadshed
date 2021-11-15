@@ -26,6 +26,7 @@ source-repository head
 library
   exposed-modules:
       Loadshedding
+      Schedule
   other-modules:
       Paths_loadshed
   hs-source-dirs:

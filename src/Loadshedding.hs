@@ -75,7 +75,7 @@ data Suburb = Suburb
 type LoadsheddingAPI =
         "getstatus" :> Get '[JSON] LoadsheddingStatus
   :<|>  "getmunicipalities" :> QueryParam "id" Int :> Get '[JSON] [MunicipalityRaw]
-  -- this suburb spelling mistake is the APIs
+  -- this suburb spelling mistake is the API's
   :<|>  "getsurburbdata" :> QueryParam "pagesize" Int :> QueryParam "pagenum" Int :> QueryParam "id" Int :> Get '[JSON] SuburbData
 
 loadsheddingAPI :: Proxy LoadsheddingAPI
