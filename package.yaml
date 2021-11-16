@@ -32,6 +32,7 @@ library:
   - http-client
   - http-client-tls
   - bytestring
+  - parsec
 
 executables:
   loadshed:

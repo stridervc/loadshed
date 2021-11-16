@@ -40,6 +40,7 @@ library
     , bytestring
     , http-client
     , http-client-tls
+    , parsec
     , servant
     , servant-client
     , text

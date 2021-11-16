@@ -76,7 +76,11 @@ doSchedule :: LoadsheddingStage -> ProvinceID -> SuburbID -> IO ()
 doSchedule stage pid sid = do
   client <- newLoadsheddingClient
   sched <- getSchedule client stage pid sid
-  print sched
+  case sched of
+    Left err    -> print err
+    Right info  -> mapM_ print' $ take 3 info
+  where print' (d,ts)   = putStrLn d >> mapM_ print'' ts >> putStrLn ""
+        print'' (st,et) = putStrLn $ st <> " - " <> et
 
 main :: IO ()
 main = do
