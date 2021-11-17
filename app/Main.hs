@@ -6,6 +6,7 @@ module Main where
 import Loadshedding
 import System.Console.CmdArgs
 import qualified Data.Text as T
+import qualified Data.Configurator as C
 
 -- command line modes
 data Loadshed = Stage
@@ -17,16 +18,19 @@ data Loadshed = Stage
 
 stage = Stage &= help "Show current load shedding stage" &= auto
 provinces = Provinces &= help "List province names and IDs"
-municipalities = Municipalities
-  { province = 3 &= help "Province ID"
+
+municipalities p = Municipalities
+  { province = p &= help "Province ID"
   } &= help "List municipalities in province"
+
 suburbs = Suburbs
   { municipality = 166
   } &= help "List suburbs in municipality"
-schedule = Schedule
-  { loadsheddingstage = 2       &= help "Load shedding stage"
-  , province          = 3       &= help "Province ID"
-  , suburb            = 1021456 &= help "Suburb ID"
+
+schedule p s = Schedule
+  { loadsheddingstage = 2 &= help "Load shedding stage"
+  , province          = p &= help "Province ID"
+  , suburb            = s &= help "Suburb ID"
   } &= help "Get loadshedding schedule"
 
 knownProvinces =
@@ -84,7 +88,13 @@ doSchedule stage pid sid = do
 
 main :: IO ()
 main = do
-  mode <- cmdArgsRun $ cmdArgsMode $ modes [stage, provinces, municipalities, suburbs, schedule] &= summary "loadshed 0.0.0"
+  config <- C.load [ C.Required "$(HOME)/.config/loadshed" ]
+  province <- C.lookupDefault 3 config "province"
+  suburb <- C.lookupDefault 1021456 config "suburb"
+
+  mode <- cmdArgsRun $ cmdArgsMode $ modes [stage, provinces, municipalities province, suburbs, schedule province suburb]
+    &= summary "loadshed 0.0.0"
+
   case mode of
     Stage               -> doStage
     Provinces           -> doProvinces

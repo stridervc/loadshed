@@ -46,6 +46,7 @@ executables:
     - loadshed
     - text
     - cmdargs
+    - configurator
 
 tests:
   loadshed-test:
