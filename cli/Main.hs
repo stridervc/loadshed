@@ -3,10 +3,10 @@
 
 module Main where
 
+import Config
 import Loadshedding
 import System.Console.CmdArgs
 import qualified Data.Text as T
-import qualified Data.Configurator as C
 
 -- command line modes
 data Loadshed = Stage
@@ -88,9 +88,9 @@ doSchedule stage pid sid = do
 
 main :: IO ()
 main = do
-  config <- C.load [ C.Required "$(HOME)/.config/loadshed" ]
-  province <- C.lookupDefault 3 config "province"
-  suburb <- C.lookupDefault 1021456 config "suburb"
+  config <- loadConfig
+  let province  = configProvince config
+  let suburb    = configSuburb config
 
   mode <- cmdArgsRun $ cmdArgsMode $ modes [stage, provinces, municipalities province, suburbs, schedule province suburb]
     &= summary "loadshed 0.0.0"

@@ -33,6 +33,7 @@ library:
   - http-client-tls
   - bytestring
   - parsec
+  - configurator
 
 executables:
   loadshedding:
@@ -46,7 +47,6 @@ executables:
     - loadshed
     - text
     - cmdargs
-    - configurator
   loadsheddingd:
     main:               Main.hs
     source-dirs:        daemon
@@ -57,8 +57,6 @@ executables:
     dependencies:
     - loadshed
     - text
-    - cmdargs
-    - configurator
 
 tests:
   loadshed-test:
