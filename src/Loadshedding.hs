@@ -16,6 +16,7 @@ module Loadshedding
     , getSuburbs
     , Suburb (..)
     , getSchedule
+    , DaySchedule
     ) where
 
 import Loadshedding.Common

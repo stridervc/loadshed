@@ -1,2 +1,8 @@
 cradle:
   stack:
+    - path: "./src"
+      component: "loadshed:lib"
+    - path: "./cli"
+      component: "loadshed:exe:loadshedding"
+    - path: "./daemon"
+      component: "loadshed:exe:loadsheddingd"

@@ -57,6 +57,7 @@ executables:
     dependencies:
     - loadshed
     - text
+    - time
 
 tests:
   loadshed-test:

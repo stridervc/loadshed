@@ -1,8 +1,10 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Loadshedding.Schedule
-  ( ScheduleDay (..)
-  , ScheduleInfo (..)
+  ( DayMonth
+  , TimeStr
+  , TimeRange
+  , DaySchedule
   , getSchedule
   ) where
 
@@ -20,16 +22,6 @@ type DayMonth     = String
 type TimeStr      = String
 type TimeRange    = (TimeStr, TimeStr)
 type DaySchedule  = (DayMonth, [TimeRange])
-
-data ScheduleDay = ScheduleDay
-  { scheduleDate  :: String
-  , scheduleTimes :: [String]
-  } deriving (Eq, Show)
-
-data ScheduleInfo = ScheduleInfo
-  { infoLabels    :: [String]
-  , scheduleDays  :: [ScheduleDay]
-  } deriving (Eq, Show)
 
 getSchedule :: LoadsheddingClient -> LoadsheddingStage -> ProvinceID -> SuburbID -> IO (Either P.ParseError [DaySchedule])
 getSchedule client stage pid sid = do

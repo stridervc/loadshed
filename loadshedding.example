@@ -9,6 +9,6 @@ frequency = 10
 early = 2
 
 # command to execute for shutdown
-shutdown = "sudo shutdown -h now 'Shutting down for lodshedding'"
+shutdown = "sudo shutdown -h now 'Shutting down for loadshedding'"
 
 logfile = "/tmp/loadshedding.log"
