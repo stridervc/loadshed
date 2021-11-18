@@ -82,7 +82,7 @@ doSchedule stage pid sid = do
   sched <- getSchedule client stage pid sid
   case sched of
     Left err    -> print err
-    Right info  -> mapM_ print' $ take 3 info
+    Right info  -> mapM_ print' $ take 7 info
   where print' (d,ts)   = putStrLn d >> mapM_ print'' ts >> putStrLn ""
         print'' (st,et) = putStrLn $ st <> " - " <> et
 
