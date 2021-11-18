@@ -37,7 +37,19 @@ library:
 executables:
   loadshedding:
     main:                Main.hs
-    source-dirs:         app
+    source-dirs:         cli
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - loadshed
+    - text
+    - cmdargs
+    - configurator
+  loadsheddingd:
+    main:               Main.hs
+    source-dirs:        daemon
     ghc-options:
     - -threaded
     - -rtsopts

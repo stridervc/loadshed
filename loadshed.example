@@ -1,2 +1,12 @@
+# example location, important to change this
 province  = 3
 suburb    = 1021456
+
+# how frequently, in minutes, to check the loadshedding schedule
+frequency = 10
+
+# how long before loadshedding, in minutes, to execute shutdown
+early = 2
+
+# command to execute for shutdown
+shutdown = "sudo shutdown -h now 'Shutting down for lodshedding'"
