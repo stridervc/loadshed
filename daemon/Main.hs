@@ -8,8 +8,9 @@ import Data.Time.Clock
 import Data.Time.Format
 import Data.Time.Calendar
 import Data.Time.LocalTime
-import Control.Concurrent (threadDelay)
+import Control.Concurrent (threadDelay, forkIO)
 import System.Posix.Process (forkProcess)
+import System.Process (spawnCommand)
 import qualified Data.Text.IO as TIO
 import qualified Data.Text as T
 
@@ -44,8 +45,21 @@ nextShutdown now schedules = do
         parse'  = parseTimeM False defaultTimeLocale "%Y %a, %d %b %R %z"
 
 logTextLn :: LoadsheddingConfig -> T.Text -> IO ()
-logTextLn config text = TIO.appendFile filename $ text <> "\n"
+logTextLn config text = do
+  now <- getCurrentTime
+  let timestr = T.pack $ formatTime defaultTimeLocale "%c" now
+
+  TIO.appendFile filename $ timestr <> " loadsheddingd: " <> text <> "\n"
   where filename = T.unpack $ configLogfile config
+
+-- thread that waits and performs the shutdown
+scheduleShutdown :: LoadsheddingConfig -> NominalDiffTime -> IO ()
+scheduleShutdown config dt = do
+  threadDelay $ floor $ if delay < 0 then 0 else delay
+  logTextLn config "Shutting down system"
+  spawnCommand $ T.unpack $ configShutdown config
+  return ()
+  where delay = (toRational dt - toRational (configEarly config) * 60) * 1000000
 
 -- Thread that checks the loadshedding schedule
 checkThread :: LoadsheddingConfig -> IO ()
@@ -65,7 +79,7 @@ checkThread config = do
         Right sched -> do
           now <- getCurrentTime
           next <- nextShutdown now sched
-          print next
+          log' $ "Next : " <> T.pack (show next)
 
   threadDelay delay
   checkThread config

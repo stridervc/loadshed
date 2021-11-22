@@ -59,6 +59,7 @@ executables:
     - text
     - time
     - unix
+    - process
 
 tests:
   loadshed-test:
