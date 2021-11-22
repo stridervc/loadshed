@@ -8,9 +8,10 @@ module Loadshedding.Common
   , MunicipalityID
   , Remaining
   , SuburbID
-  , LoadsheddingStage
+  , LoadsheddingStage (..)
   , ProvinceID
   , newLoadsheddingClient
+  , stageFromInt
   ) where
 
 import Servant.API
@@ -23,12 +24,14 @@ data LoadsheddingClient = LoadsheddingClient
   , _manager  :: Manager
   }
 
+data LoadsheddingStage  = NoLoadshedding | LoadsheddingStage Int
+  deriving (Eq, Show, Ord)
+
 type PerPage            = Int
 type Page               = Int
 type MunicipalityID     = Int
 type Remaining          = Int
 type SuburbID           = Int
-type LoadsheddingStage  = Int
 type ProvinceID         = Int
 
 newLoadsheddingClient :: IO LoadsheddingClient
@@ -37,3 +40,7 @@ newLoadsheddingClient = do
   let env = mkClientEnv manager (BaseUrl Https "loadshedding.eskom.co.za" 443 "loadshedding")
   return $ LoadsheddingClient env manager
 
+stageFromInt :: Int -> LoadsheddingStage
+stageFromInt i
+  | i <= 1    = NoLoadshedding
+  | otherwise = LoadsheddingStage (i-1)

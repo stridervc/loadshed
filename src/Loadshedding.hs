@@ -6,7 +6,7 @@
 module Loadshedding
     ( newLoadsheddingClient
     , LoadsheddingClient
-    , LoadsheddingStage
+    , LoadsheddingStage (..)
     , MunicipalityID
     , ProvinceID
     , SuburbID
@@ -17,6 +17,7 @@ module Loadshedding
     , Suburb (..)
     , getSchedule
     , DaySchedule
+    , stageFromInt
     ) where
 
 import Loadshedding.Common
@@ -33,7 +34,7 @@ import Network.HTTP.Client (newManager, Manager)
 import Network.HTTP.Client.TLS (tlsManagerSettings)
 
 type LoadsheddingAPI =
-        "getstatus" :> Get '[JSON] LoadsheddingStage
+        "getstatus" :> Get '[JSON] Int
   :<|>  "getmunicipalities" :> QueryParam "id" Int :> Get '[JSON] [MunicipalityRaw]
   -- this suburb spelling mistake is the API's
   :<|>  "getsurburbdata" :> QueryParam "pagesize" Int :> QueryParam "pagenum" Int :> QueryParam "id" Int :> Get '[JSON] SuburbData
@@ -45,7 +46,7 @@ queryLoadshedding :: LoadsheddingClient -> ClientM a -> IO (Either ClientError a
 queryLoadshedding client query = runClientM query env
   where env = _env client
 
-getLoadsheddingStatusRaw  :: ClientM LoadsheddingStage
+getLoadsheddingStatusRaw  :: ClientM Int
 getMunicipalitiesRaw      :: Maybe Int -> ClientM [MunicipalityRaw]
 getSuburbsRaw :: Maybe Int -> Maybe Int -> Maybe Int -> ClientM SuburbData
 getLoadsheddingStatusRaw :<|> getMunicipalitiesRaw :<|> getSuburbsRaw = client loadsheddingAPI
@@ -57,7 +58,7 @@ getLoadsheddingStatus client = do
   res <- queryLoadshedding client getLoadsheddingStatusRaw
   case res of
     Left err  -> return $ Left err
-    Right val -> return $ Right $ val - 1
+    Right val -> return $ Right $ stageFromInt val
 
 getMunicipalities :: LoadsheddingClient -> Int -> IO (Either ClientError [Municipality])
 getMunicipalities client p = do

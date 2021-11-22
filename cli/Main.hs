@@ -51,8 +51,8 @@ doStage = do
   status <- getLoadsheddingStatus client
   case status of
     Left err  -> print err
-    Right 0   -> putStrLn "Not load shedding"
-    Right l   -> putStrLn $ "Stage " <> show l
+    Right NoLoadshedding        -> putStrLn "Not load shedding"
+    Right (LoadsheddingStage l) -> putStrLn $ "Stage " <> show l
 
 doProvinces :: IO ()
 doProvinces = mapM_ print' $ zip [1..] knownProvinces
@@ -100,4 +100,4 @@ main = do
     Provinces           -> doProvinces
     Municipalities p    -> doMunicipalities p
     Suburbs m           -> doSuburbs m
-    Schedule stage p s  -> doSchedule stage p s
+    Schedule stage p s  -> doSchedule (stageFromInt stage) p s
