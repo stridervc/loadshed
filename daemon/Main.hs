@@ -1,3 +1,5 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 module Main where
 
 import Config
@@ -6,6 +8,10 @@ import Data.Time.Clock
 import Data.Time.Format
 import Data.Time.Calendar
 import Data.Time.LocalTime
+import Control.Concurrent (threadDelay)
+import System.Posix.Process (forkProcess)
+import qualified Data.Text.IO as TIO
+import qualified Data.Text as T
 
 nextShutdownT :: DaySchedule -> IO ()
 nextShutdownT (day, times) = do
@@ -37,24 +43,38 @@ nextShutdown now schedules = do
   where parse'  :: String -> IO UTCTime
         parse'  = parseTimeM False defaultTimeLocale "%Y %a, %d %b %R %z"
 
-main = do
-  config <- loadConfig
-  let province  = configProvince config
-  let suburb    = configSuburb config
+logTextLn :: LoadsheddingConfig -> T.Text -> IO ()
+logTextLn config text = TIO.appendFile filename $ text <> "\n"
+  where filename = T.unpack $ configLogfile config
 
+-- Thread that checks the loadshedding schedule
+checkThread :: LoadsheddingConfig -> IO ()
+checkThread config = do
   -- check load shedding stage
   -- if not 0, get schedule
   -- show next loadshedding start time
   client <- newLoadsheddingClient
   status <- getLoadsheddingStatus client
   case status of
-    Left err  -> putStrLn "Error getting status"
-    Right 0   -> putStrLn "Not load shedding"
-    Right n   -> do
+    Left err              -> log' "Error getting status"
+    Right NoLoadshedding  -> log' "Not load shedding"
+    Right n               -> do
       schedule <- getSchedule client n province suburb
       case schedule of
-        Left err    -> putStrLn "Error getting schedule"
+        Left err    -> log' "Error getting schedule"
         Right sched -> do
           now <- getCurrentTime
           next <- nextShutdown now sched
           print next
+
+  threadDelay delay
+  checkThread config
+  where province  = configProvince config
+        suburb    = configSuburb config
+        frequency = configFrequency config
+        delay     = frequency * 60 * 1000000
+        log'      = logTextLn config
+
+main = do
+  config <- loadConfig
+  forkProcess $ checkThread config
