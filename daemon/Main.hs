@@ -8,7 +8,7 @@ import Data.Time.Clock
 import Data.Time.Format
 import Data.Time.Calendar
 import Data.Time.LocalTime
-import Control.Concurrent (threadDelay, forkIO)
+import Control.Concurrent (threadDelay, forkIO, ThreadId, killThread)
 import System.Posix.Process (forkProcess)
 import System.Process (spawnCommand)
 import qualified Data.Text.IO as TIO
@@ -61,28 +61,49 @@ scheduleShutdown config dt = do
   return ()
   where delay = (toRational dt - toRational (configEarly config) * 60) * 1000000
 
+killIfThread :: Maybe ThreadId -> IO ()
+killIfThread Nothing    = return ()
+killIfThread (Just tid) = killThread tid
+
+-- replace existing (if any) shutdown thread with a new one
+replaceShutdown :: LoadsheddingConfig -> Maybe ThreadId -> NominalDiffTime -> IO ThreadId
+replaceShutdown config thread dt = do
+  killIfThread thread
+  forkIO $ scheduleShutdown config dt
+
 -- Thread that checks the loadshedding schedule
-checkThread :: LoadsheddingConfig -> IO ()
-checkThread config = do
+-- Pass it a ThreadId for existing shutdown thread (if any)
+checkThread :: LoadsheddingConfig -> Maybe ThreadId -> IO ()
+checkThread config thread = do
   -- check load shedding stage
   -- if not 0, get schedule
-  -- show next loadshedding start time
   client <- newLoadsheddingClient
   status <- getLoadsheddingStatus client
   case status of
-    Left err              -> log' "Error getting status"
-    Right NoLoadshedding  -> log' "Not load shedding"
+    Left err              -> do
+      log' "Error getting status"
+      threadDelay delay
+      checkThread config thread
+    Right NoLoadshedding  -> do
+      log' "Not load shedding"
+      killIfThread thread
+      threadDelay delay
+      checkThread config Nothing
     Right n               -> do
       schedule <- getSchedule client n province suburb
       case schedule of
-        Left err    -> log' "Error getting schedule"
+        Left err    -> do
+          log' "Error getting schedule"
+          threadDelay delay
+          checkThread config thread
         Right sched -> do
           now <- getCurrentTime
           next <- nextShutdown now sched
           log' $ "Next : " <> T.pack (show next)
+          thread' <- replaceShutdown config thread next
+          threadDelay delay
+          checkThread config (Just thread')
 
-  threadDelay delay
-  checkThread config
   where province  = configProvince config
         suburb    = configSuburb config
         frequency = configFrequency config
@@ -91,4 +112,4 @@ checkThread config = do
 
 main = do
   config <- loadConfig
-  forkProcess $ checkThread config
+  forkProcess $ checkThread config Nothing
