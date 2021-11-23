@@ -10,16 +10,19 @@ Linux build instructions
   git clone git@github.com:stridervc/loadshed.git
   cd loadshed
 }
+```
 * Build with stack
 ``` shell
 {
   stack build
 }
+```
 * Install (to ~/.local/bin/)
 ```
 {
   stack install
 }
+```
 
 Resources
 =========
