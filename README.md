@@ -5,12 +5,21 @@ Linux build instructions
 ========================
 * Install **stack**, either [directly](https://docs.haskellstack.org/en/stable/README/#how-to-install) or via [ghcup](https://www.haskell.org/ghcup/).
 * Clone repo
-  `git clone git@github.com:stridervc/loadshed.git`
-  `cd loadshed`
+``` shell
+{
+  git clone git@github.com:stridervc/loadshed.git
+  cd loadshed
+}
 * Build with stack
-  `stack build`
+``` shell
+{
+  stack build
+}
 * Install (to ~/.local/bin/)
-  `stack install`
+```
+{
+  stack install
+}
 
 Resources
 =========
