@@ -19,7 +19,7 @@ data LoadsheddingConfig = LoadsheddingConfig
 
 loadConfig :: IO LoadsheddingConfig
 loadConfig = do
-  config <- C.load [ C.Optional "$(HOME)/.config/loadshedding" ]
+  config <- C.load [ C.Optional "/etc/loadshedding.conf", C.Optional "$(HOME)/.config/loadshedding" ]
 
   cp <- C.lookupDefault 3 config "province"
   cs <- C.lookupDefault 1021456 config "suburb"

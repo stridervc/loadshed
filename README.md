@@ -53,7 +53,6 @@ To avoid having to pass the province and suburb IDs every time, see the configur
 Configuration
 =============
 Both the command line utility and the daemon will check the configuration files in order, with the latter overriding the earlier.
-(**TEST THIS**))
 They are:
 * /etc/loadshedding.conf
 * ~/.config/loadshedding
